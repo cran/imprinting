@@ -1,0 +1,208 @@
+---
+title: "intro-to-imprinting"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{intro-to-imprinting}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+  
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+collapse = TRUE,
+comment = "#>"
+)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+```
+  
+  
+# 1. Install the imprinting package
+  
+The `imprinting` package isn't yet available on [CRAN](https://cran.r-project.org/), so it can't yet be installed using the normal `install.packages("imprinting")` command in R. (But this feature is coming soon!)
+  
+For now, we have to install the package from github using the following steps.
+  
+  
+### 1.1 Install the devtools package 
+  
+If prompted: you do not need to researt R prior to lading, and you do not need to install from souce.
+  
+```{r eval=FALSE}
+install.packages("devtools", repos='http://cran.us.r-project.org')
+```
+
+### 1.2 Load the devtools package
+```{r}
+library(devtools) # Load the package
+```
+
+Now that we have devtools installed, we can use the `install_github()` function to install the imprinting package. 
+
+### 1.3 Install the imprinting package from github
+
+This builds and installs the package using source files from [https://github.com/cobeylab/imprinting](https://github.com/cobeylab/imprinting).
+
+```{r eval=FALSE}
+devtools::install_github("cobeylab/imprinting") 
+```
+
+### 1.4 Load the imprinting package
+
+```{r}
+library(imprinting) 
+```
+
+Now the package should be installed and loaded into your R workspace. 
+
+```{r include=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+
+
+
+# 2. Use the package to calculate imprinting probabilities
+
+The main reason to use the `imprinting` package is to calculate birth year-specific probabilities of imprinting to a specific subtype of influenza A. You can read more about the biology and methods behind these calculations in [Gostic et al. (2016)](https://doi.org/10.1126/science.aag1322).
+
+## 2.1 Calculate imprinting probabilities for one country and year of observation
+
+Use the function `get_imprinting_probabilities()`. Run `?get_imprinting_probabilities` for help.
+
+```{r}
+get_imprinting_probabilities(observation_years = 2022, countries = "United States")
+```
+The function returns a tibble wtih five columns: `subtype`, `year`, `country`, `birth_year`, and `imprinting_prob`. The column `imprinting_prob` gives the probability that someone born in `birth_year` and observed in `year` has imprinted to `subtype`.
+
+We can run the same command use the `df_format='wide'` option to output the same results in wide format. This displays all imprinting probabilities for the cohort side-by-side
+
+```{r}
+get_imprinting_probabilities(observation_years = 2022, 
+                             countries = "United States", 
+                             df_format = 'wide')
+```
+
+## 2.2 Why do we specify the `observation_year`?
+
+The `observation_year` affects imprinting probabilities in birth cohorts who are young enough to still be in the process of imprinting. Our model assumes that everyone has been infected by influenza before age 12, so in cohorts <12 years of age at the time of observation, imprinting probabilities depend on the observation year. 
+
+E.g. consider the cohort born in 2000:
+
+* If the observation year is 2005, then this birth cohort is five years old, and still young enough to remain naive to influenza. The outputs below show that 22.9% of the cohort has not yet imprinted to any subtype.
+* If we calculate imprinting probabilities for the same birth cohort observed in 2011 (at age 11), the model shows that most of the cohort has imprinted, but there is still a very small non-zero probability of remaining naive.
+* When the cohort reaches age 12, (observation year 2012) the model enforces the assumption that everyone in the cohort has imprinted. It normalizes the probabilities of subtype-specific imprinting so that the H1N1, H2N2, and H3N2-specific probabilities sum to 1, and it sets the naive probability to zero.
+* Once the cohort reaches age 12, imprinting probabilities are fixed. The outputs below show that imprinting probabilities for the 2000 cohort are identical if observed at age 12 (in 2012), or at age 22 (in 2022).
+
+Note: we added the age_at_observation column to the outputs below for clarity.
+
+
+```{r}
+get_imprinting_probabilities(observation_years = c(2005, 2011, 2012, 2022), 
+                             countries = "United States", 
+                             df_format = 'wide') %>%
+  dplyr::filter(birth_year == 2000) %>%
+  mutate(age_at_observation = year-birth_year) %>%
+  select(c(1,2,3,8,4:7))
+```
+
+## 2.2 View a list of the available countries
+
+We can only calculate imprinting probabilities for countries with data in [WHO Flu Net](https://www.who.int/tools/flunet). The input name and spelling must match the outputs below:
+
+```{r}
+show_available_countries() %>%
+  print(n = 200)
+```
+
+## 2.3 Generate probabilities for many countries and observation years
+
+```{r}
+many_probabilities = get_imprinting_probabilities(observation_years = c(2000, 2019, 2022),
+                                                  countries = c('Brazil', 'Afghanistan', 'Estonia', 'Finland')) 
+## Store the outputs in a variable called many_probabilities
+many_probabilities ## View the outputs in the console
+```
+
+Alternatively, you can view the outputs in a separate window or save them as a .csv file on your hard drive.
+
+```{r eval=FALSE}
+# View the outputs in a separate window.
+View(many_probabilities) 
+
+# Save the outputs as a .csv file in your current working directory.
+write_csv(many_probabilities, 'many_probabilities.csv') 
+```
+
+# 3. Plot the outputs
+
+## 3.1 Plot the first country-year combination in the output data frame
+
+`plot_one_country_year()` takes a long-formatted output data frame and plots the first country and year combination.
+
+```{r fig.width = 7}
+head(many_probabilities)
+plot_one_country_year(many_probabilities) 
+```
+
+## Select a specific country and year to plot
+
+You can use `filter()` to select a specific country and year for plotting.
+
+```{r fig.width = 7}
+plot_one_country_year(many_probabilities %>% 
+                        dplyr::filter(country == 'Estonia', year == 2019))
+```
+
+## 3.2 Plot up to five countires at a time
+
+`plot_many_country_years()` generates a plot of the first five countries in the imprinting outputs, across an arbitrary number of years.
+
+* The plots on the left show imprinting probabilities for the latest observation year
+* The plots on the right show how H3N2 imprinting probabilities have changed as cohorts grow older from the earliest to the latest observation year in the outputs. The vertical lines and arrow show aging of the 1968 birth cohort.
+
+```{r fig.width = 7, fig.height = 5}
+plot_many_country_years(many_probabilities)
+```
+
+
+# 4. Explore the underlying data and components of the imprinting probabilities
+
+
+Get the fraction of influenza circulation caused by each subtype in each epidemic year from 1918-2022 in the United States using `get_country_cocirculation`.
+Run `?get_country_cocirculation_data` for notes on data sources.
+
+```{r}
+get_country_cocirculation_data('United States', 2022)
+```
+
+Get the circulation intensity of influenza A in each epidemic year using `get_country_intensity_data()`.
+
+* Intensity of 1 is average. Higher values indicate more influenza A circulation, lower values indicate less circulation.
+
+See `?get_country_intensity_data` for details on underlying data.
+
+```{r}
+get_country_intensity_data(country = 'China', max_year = 2022)
+```
+
+## Get the probability that an individual imprinted 0, 1, 2, ... 12 years after birth
+
+Use the function `get_p_infection_year()`
+
+```{r}
+probs = get_p_infection_year(birth_year = 2000,
+                     observation_year = 2022,
+                     intensity_df = get_country_intensity_data('Mexico', 2022),
+                     max_year = 2022)
+names(probs) = as.character(2000+(0:12))
+probs
+sum(probs) ## Raw probabilities are not yet normalized.
+
+norm_probs = probs/sum(probs) ## Normalize
+sum(norm_probs)
+```
+
+

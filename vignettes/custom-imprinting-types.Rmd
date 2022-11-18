@@ -1,0 +1,95 @@
+---
+title: "custom-imprinting-types"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{custom-imprinting-types}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+  
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+collapse = TRUE,
+comment = "#>"
+)
+library(dplyr)
+```
+
+
+
+  
+  
+# Generate probabilities of imprinting to custom subsets of influenza A viruses
+  
+By default, `get_imprinting_probabilities()` calculates subtype-specific probabilities of imprinting to influenza A H1N1, H2N2, or H3N2. Researchers may want to calculate different kinds of imprinting probabilities. E.g. perhaps we want to study imprinting to specific influenza isolates, clades, [glycosylation states](https://doi.org/10.1128/mBio.00204-19), or to a multivalent vaccine.
+
+
+To calculate imprinting to custom groups of influenza A viruses, use the `annual_frequencies` option in `get_imprinting_probabilities()`. 
+
+The `annual_frequencies` input must be a list whose names match the `countries` input. Each element of the list must be a data frame or tibble with the following columns:
+
+* `year` - containing numeric values from 1918-max(`observation_years`)
+* any number of frequency columns whose names indicate the imprinting category, and whose values indicate the annual fraction of circulating influenza A exposures in that category. Within each year (row), these values must sum to one.
+
+As an example, let's imagine we want to calculate subtype-specific imprinting probabilities, with some probability of imprinting by vaccination in the United States and Germany. Note that the pediatric influenza vaccination rates used in this example are PURELY HYPOTEHTICAL, and not based on data or actual vaccine policies in these countries.
+
+Let's start by making a data frame of circulation frequencies for the United States.
+
+
+
+```{r}
+library(imprinting)
+## Start with subtype-specific fractions for H1N1, H2N2, H3N2
+US_frequencies = get_country_cocirculation_data(country = 'United States', max_year = 2022) %>%
+  select(1:4)
+head(US_frequencies)
+```
+
+Now, add in a vaccination column. Not all countries vaccinate healthy infants against influenza, and infant influenza vaccination has only been widely practiced for the past few decades, even in countries where coverage is now high. Hypothetically, let's assume that 5\% of US infants were vaccinated against influenza starting in 1995, increasing steadily to 75\% coverage in 2020. (Again, this is purely hypothetical, and not based on data.)
+
+```{r}
+## Add a vaccination column
+US_frequencies <- US_frequencies %>%
+  mutate(vaccination = c(rep(0, 77), seq(.5, .75, length = 26), .75, .75), # Add a vaccination column
+         `A/H1N1` = `A/H1N1`*(1-vaccination), # Assume only non-vaccinated children have primary
+         `A/H2N2` = `A/H2N2`*(1-vaccination), # infections; multiply the subtype-specific circulation
+         `A/H3N2` = `A/H3N2`*(1-vaccination)) # fractions by one minus the year's vaccination probability.
+tail(US_frequencies, n = 30)
+```
+
+Assume Germany adopted their infant vaccination policy 10 years later, in 2005. Generate a Germany-specific table of frequencies:
+
+```{r}
+Germany_frequencies <- get_country_cocirculation_data(country = 'Germany',
+                                                      max_year = 2022) %>%
+  select(1:4) %>%
+  mutate(vaccination = c(rep(0, 87), seq(.05, .75, length = 16), .75, .75),
+         `A/H1N1` = `A/H1N1`*(1-vaccination), # Assume only non-vaccinated children have primary
+         `A/H2N2` = `A/H2N2`*(1-vaccination), # infections; multiply the subtype-specific circulation
+         `A/H3N2` = `A/H3N2`*(1-vaccination))
+tail(Germany_frequencies, 20)
+```
+
+
+## Input the custom frequencies into `get_imprinting_probabilities()`
+
+```{r}
+## Check that all frequencies sum to 1
+rowSums(US_frequencies[,2:5])
+rowSums(Germany_frequencies[,2:5])
+```
+
+```{r}
+# Wrap the country-specific frequencies into a named list
+input_list = list("United States" = US_frequencies,
+                  "Germany" = Germany_frequencies)
+
+## Calculate probabilities
+get_imprinting_probabilities(observation_years = 2022, 
+                             countries = c("United States", "Germany"), 
+                             annual_frequencies = input_list, 
+                             df_format = "wide")
+```
+
+
+
