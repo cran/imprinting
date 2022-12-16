@@ -2,7 +2,7 @@ Package: imprinting
 Type: Package
 Title: Calculate Birth Year-Specific Probabilities of Immune Imprinting
         to Influenza
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: 
     c(person(given = "Katelyn",
              family = "Gostic",
@@ -25,9 +25,9 @@ VignetteBuilder: knitr
 URL: https://cobeylab.github.io/imprinting/
 BugReports: https://github.com/cobeylab/imprinting/issues
 NeedsCompilation: no
-Packaged: 2022-11-17 22:16:03 UTC; alex
+Packaged: 2022-12-16 22:31:25 UTC; alex
 Author: Katelyn Gostic [aut],
   Alex Byrnes [ctb, cre]
 Maintainer: Alex Byrnes <abyrnes@uchicago.edu>
 Repository: CRAN
-Date/Publication: 2022-11-18 10:20:02 UTC
+Date/Publication: 2022-12-16 22:50:02 UTC

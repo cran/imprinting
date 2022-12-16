@@ -1,10 +1,10 @@
-54a21f82f3b5024e79f031e59b3f8656 *DESCRIPTION
+290699766eb0f0bee04815b238d87819 *DESCRIPTION
 bf6f670f862064c809d0ac6a654403ef *LICENSE
 5c7244bb76e2872b3747bc92fb4f2781 *NAMESPACE
-8cc51fe16975a8d8fa9371a6d4b2c73e *R/calculation_funs.R
+600180625bdafa0d27954ff2bea917d1 *R/calculation_funs.R
 438f9977fb68b0f15d05ac11504c26cd *R/data_import_funs.R
 3eb1d5e34993d5044daef40c1eeff86f *R/imprinting-package.R
-9e730cd21e045e5c32edfbf401d714bd *R/plotting_funs.R
+e77ef04f973fd8895f41b4d45d9df780 *R/plotting_funs.R
 ea124a494ad7922985532ad3b308e4d5 *build/partial.rdb
 95cf13146665e2cca405e6d864b5350c *build/vignette.rds
 5e43084785fe909f1436d357a5ad09ea *inst/doc/custom-imprinting-types.R
@@ -12,7 +12,7 @@ b4db265482c6154f822995b0e09e858d *inst/doc/custom-imprinting-types.Rmd
 aac01a04af537b994687c4df4ccf95c5 *inst/doc/custom-imprinting-types.html
 199b6e8856c4f62b9bccbe3b39d01f79 *inst/doc/intro-to-imprinting.R
 161cf354be9798199bdda0449597fc3f *inst/doc/intro-to-imprinting.Rmd
-ea8240e0f9c380f98c062d61aa49461f *inst/doc/intro-to-imprinting.html
+109efe0c6e739336d7bc7126083315c1 *inst/doc/intro-to-imprinting.html
 8c8d16b0b3ddca732aa6865fd47e2890 *inst/extdata/COUNTRY_NAMES.rds
 721c5844b83433462a90edb16e896000 *inst/extdata/INTENSITY_DATA.rds
 9e951ea3d4730ccd6dea912f5cc81717 *inst/extdata/THOMPSON_DATA.rds
@@ -36,6 +36,6 @@ a13551cd5ea4f5c5489a86052e80ce5e *man/plot_one_country_year.Rd
 f43a959f11a20a2d5ecebaa5463f6da2 *tests/testthat.R
 17e7a73817812f7f2eb4d774f435765e *tests/testthat/setup.R
 3ecbdc4693cc1ef289eb06736fa2e613 *tests/testthat/test-cocirculation-and-intensity.R
-df8ec021b4f0206f63de474ddc288301 *tests/testthat/test-imprinting-probabilities.R
+7a6a0cbccfe6d189f2b841db24f83851 *tests/testthat/test-imprinting-probabilities.R
 b4db265482c6154f822995b0e09e858d *vignettes/custom-imprinting-types.Rmd
 161cf354be9798199bdda0449597fc3f *vignettes/intro-to-imprinting.Rmd

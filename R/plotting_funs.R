@@ -154,6 +154,7 @@ plot_many_country_years <- function(imprinting_df) {
       pandemic_1968 = year - 1968
     ) %>%
     dplyr::filter(age_at_observation >= 0) %>%
+    dplyr::filter(subtype == "A/H3N2") %>%
     ggplot() +
     geom_vline(aes(xintercept = pandemic_1968, lty = as.factor(year)), show.legend = F) +
     geom_line(aes(x = age_at_observation, y = imprinting_prob, lty = as.factor(year)), color = "firebrick2") +

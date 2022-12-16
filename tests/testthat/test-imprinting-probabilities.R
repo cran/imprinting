@@ -4,6 +4,11 @@ test_that("Observation years greater than current year raises error.", {
   expect_error(get_imprinting_probabilities(observation_years = obs_year, countries = c("United States")))
 })
 
+test_that("Probabilities are not returned for birth cohorts not yet alive in the year of observation.", {
+  probs <- get_imprinting_probabilities(observation_years = c(2000, 2022), countries = "Brazil")
+  expect_true(all(probs$year >= probs$birth_year))
+})
+
 test_that("Range of years returned equals range of years passed.", {
   obs_year <- 2018
   min_year <- 1918
